@@ -5,25 +5,27 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using WebApplication2.Controllers;
 using Microsoft.AspNetCore.Http;
-using WebApiContrib.Core;
 
 namespace WebApplication2
 {
+
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
+        public Startup(IConfiguration configuration)
         {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddEnvironmentVariables();
-            Configuration = builder.Build();
+            Configuration = configuration;
         }
 
-        public IConfigurationRoot Configuration { get; }
+        public IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
         {
+        }
+
+        public virtual void AddAdminService(IServiceCollection services)
+        {
+            services.AddTransient<IHiService, AdminService>();
+
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
@@ -34,12 +36,15 @@ namespace WebApplication2
             app.UseBranchWithServices("/admin",
                 s =>
                 {
-                    s.AddTransient<IHiService, AdminService>();
-                    s.AddMvc().ConfigureApplicationPartManager(manager =>
-                    {
-                        manager.FeatureProviders.Clear();
-                        manager.FeatureProviders.Add(new TypedControllerFeatureProvider<DashboardController>());
-                    });
+                    // s.AddTransient<IHiService, AdminService>();
+                    AddAdminService(s);
+                    s.AddMvc()
+                    //.ConfigureApplicationPartManager(manager =>
+                    //{
+                    //    manager.FeatureProviders.Clear();
+                    //    manager.FeatureProviders.Add(new TypedControllerFeatureProvider<DashboardController>());
+                    //})
+                    ;
                 },
                 a =>
                 {
@@ -58,20 +63,20 @@ namespace WebApplication2
                     a.UseMvc();
                 });
 
-            app.UseBranchWithServices("/api",
-                s =>
-                {
-                    s.AddTransient<IHiService, ResourceService>();
-                    s.AddMvc().ConfigureApplicationPartManager(manager =>
-                    {
-                        manager.FeatureProviders.Clear();
-                        manager.FeatureProviders.Add(new TypedControllerFeatureProvider<MyApiController>());
-                    });
-                },
-                a =>
-                {
-                    a.UseMvc();
-                });
+            //app.UseBranchWithServices("/api",
+            //    s =>
+            //    {
+            //        s.AddTransient<IHiService, ResourceService>();
+            //        s.AddMvc().ConfigureApplicationPartManager(manager =>
+            //        {
+            //            manager.FeatureProviders.Clear();
+            //            manager.FeatureProviders.Add(new TypedControllerFeatureProvider<MyApiController>());
+            //        });
+            //    },
+            //    a =>
+            //    {
+            //        a.UseMvc();
+            //    });
 
             app.Run(async c =>
             {
