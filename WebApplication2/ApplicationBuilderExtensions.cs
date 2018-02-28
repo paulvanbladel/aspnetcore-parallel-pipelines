@@ -11,62 +11,62 @@ using System.Threading;
 
 namespace WebApplication2
 {
-    public static class ApplicationBuilderExtensions
-    {
-        public static IApplicationBuilder UseBranchWithServices(this IApplicationBuilder app, PathString path,
-            Action<IServiceCollection> servicesConfiguration, Action<IApplicationBuilder> appBuilderConfiguration)
-        {
-            var webHost = new WebHostBuilder()
-                 .ConfigureServices(s =>
-                 {
-                     s.AddSingleton<IServer, DummyServer>();
-                 })
-                .ConfigureServices(servicesConfiguration)
-                .UseStartup<EmptyStartup>().Build();
-            var serviceProvider = webHost.Services;
-            var serverFeatures = webHost.ServerFeatures;
-
-            var appBuilderFactory = serviceProvider.GetRequiredService<IApplicationBuilderFactory>();
-            var branchBuilder = appBuilderFactory.CreateBuilder(serverFeatures);
-            var factory = serviceProvider.GetRequiredService<IServiceScopeFactory>();
-
-            branchBuilder.Use(async (context, next) =>
-            {
-                using (var scope = factory.CreateScope())
+   public static class ApplicationBuilderExtensions
+   {
+       public static IApplicationBuilder UseBranchWithServices(this IApplicationBuilder app, PathString path,
+           Action<IServiceCollection> servicesConfiguration, Action<IApplicationBuilder> appBuilderConfiguration)
+       {
+           var webHost = new WebHostBuilder()
+                .ConfigureServices(s =>
                 {
-                    context.RequestServices = scope.ServiceProvider;
-                    await next();
-                }
-            });
+                    s.AddSingleton<IServer, DummyServer>();
+                })
+               .ConfigureServices(servicesConfiguration)
+               .UseStartup<EmptyStartup>().Build();
+           var serviceProvider = webHost.Services;
+           var serverFeatures = webHost.ServerFeatures;
 
-            appBuilderConfiguration(branchBuilder);
+           var appBuilderFactory = serviceProvider.GetRequiredService<IApplicationBuilderFactory>();
+           var branchBuilder = appBuilderFactory.CreateBuilder(serverFeatures);
+           var factory = serviceProvider.GetRequiredService<IServiceScopeFactory>();
 
-            var branchDelegate = branchBuilder.Build();
+           branchBuilder.Use(async (context, next) =>
+           {
+               using (var scope = factory.CreateScope())
+               {
+                   context.RequestServices = scope.ServiceProvider;
+                   await next();
+               }
+           });
 
-            return app.Map(path, builder =>
-            {
-                builder.Use(async (context, next) =>
-                {
-                    await branchDelegate(context);
-                });
-            });
-        }
+           appBuilderConfiguration(branchBuilder);
 
-        private class EmptyStartup
-        {
-            public void ConfigureServices(IServiceCollection services) { }
+           var branchDelegate = branchBuilder.Build();
 
-            public void Configure(IApplicationBuilder app) { }
-        }
-        private class DummyServer : IServer
-        {
-            public IFeatureCollection Features { get; } = new FeatureCollection();
+           return app.Map(path, builder =>
+           {
+               builder.Use(async (context, next) =>
+               {
+                   await branchDelegate(context);
+               });
+           });
+       }
 
-            public void Dispose() { }
+       private class EmptyStartup
+       {
+           public void ConfigureServices(IServiceCollection services) { }
 
-            public Task StartAsync<TContext>(IHttpApplication<TContext> application, CancellationToken cancellationToken) => Task.CompletedTask;
+           public void Configure(IApplicationBuilder app) { }
+       }
+       private class DummyServer : IServer
+       {
+           public IFeatureCollection Features { get; } = new FeatureCollection();
 
-            public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
-        }
-    }
+           public void Dispose() { }
+
+           public Task StartAsync<TContext>(IHttpApplication<TContext> application, CancellationToken cancellationToken) => Task.CompletedTask;
+
+           public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+       }
+   }
 }

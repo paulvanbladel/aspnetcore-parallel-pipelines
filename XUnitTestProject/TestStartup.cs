@@ -11,9 +11,9 @@ namespace XUnitTestProject
     {
         public TestStartup(IConfiguration configuration) : base(configuration) { }
 
-        //public override void AddAdminService(IServiceCollection services)
-        //{
-        //    services.AddTransient<IHiService, AdminService2>();
-        //}
+        public override void AddAdminService(IServiceCollection services)
+        {
+           services.AddTransient<IHiService, AdminService2>();
+        }
     }
 }

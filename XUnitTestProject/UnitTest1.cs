@@ -40,7 +40,6 @@ namespace XUnitTestProject
         {
             var result = _server.Host.Services.GetService(typeof(IHiService));
             Assert.NotNull(result);
-
         }
     }
 }

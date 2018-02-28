@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using WebApplication2.Controllers;
 using Microsoft.AspNetCore.Http;
+// using WebApiContrib.Core;
 
 namespace WebApplication2
 {
@@ -36,14 +37,14 @@ namespace WebApplication2
             app.UseBranchWithServices("/admin",
                 s =>
                 {
-                    // s.AddTransient<IHiService, AdminService>();
+                    //s.AddTransient<IHiService, AdminService>();
                     AddAdminService(s);
                     s.AddMvc()
-                    //.ConfigureApplicationPartManager(manager =>
-                    //{
-                    //    manager.FeatureProviders.Clear();
-                    //    manager.FeatureProviders.Add(new TypedControllerFeatureProvider<DashboardController>());
-                    //})
+                    .ConfigureApplicationPartManager(manager =>
+                    {
+                       manager.FeatureProviders.Clear();
+                       manager.FeatureProviders.Add(new TypedControllerFeatureProvider<DashboardController>());
+                    })
                     ;
                 },
                 a =>
