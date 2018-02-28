@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using WebApplication2.Controllers;
 using Microsoft.AspNetCore.Http;
+using WebApiContrib.Core;
 
 namespace WebApplication2
 {
