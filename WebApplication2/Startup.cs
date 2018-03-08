@@ -23,12 +23,6 @@ namespace WebApplication2
         {
         }
 
-        public virtual void AddAdminService(IServiceCollection services)
-        {
-            services.AddTransient<IHiService, AdminService>();
-
-        }
-
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
@@ -37,14 +31,13 @@ namespace WebApplication2
             app.UseBranchWithServices("/admin",
                 s =>
                 {
-                    //s.AddTransient<IHiService, AdminService>();
-                    AddAdminService(s);
+                    s.AddTransient<IHiService, AdminService>();
                     s.AddMvc()
                     .ConfigureApplicationPartManager(manager =>
                     {
                        manager.FeatureProviders.Clear();
                        manager.FeatureProviders.Add(new TypedControllerFeatureProvider<DashboardController>());
-                    })
+                    }).AddApplicationPart(typeof(MyApiController).Assembly);
                     ;
                 },
                 a =>

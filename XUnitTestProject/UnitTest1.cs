@@ -18,21 +18,19 @@ namespace XUnitTestProject
         {
             _server = new TestServer(
                 new WebHostBuilder()
-                .UseStartup<TestStartup>());
+                .UseStartup<Startup>());
 
             _client = _server.CreateClient();
         }
         [Fact]
         public async Task ThisWorksGreat()
         {
-            // Act
             var response = await _client.GetAsync("/admin/admindata");
             response.EnsureSuccessStatusCode();
 
             var responseString = await response.Content.ReadAsStringAsync();
 
-            // Assert
-            Assert.Equal("I'm Admin Data Controller. " + "Hi from Admin Service test", responseString);
+            Assert.Equal("I'm Admin Data Controller. " + "Hi from Admin Service", responseString);
         }
 
         [Fact]
