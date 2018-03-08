@@ -31,6 +31,7 @@ namespace WebApplication2
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
+ 
             app.UseBranchWithServices("/admin",
                 s =>
                 {
@@ -39,7 +40,7 @@ namespace WebApplication2
                     {
                         manager.FeatureProviders.Clear();
                         manager.FeatureProviders.Add(new TypedControllerFeatureProvider<DashboardController>());
-                    });
+                    }).AddApplicationPart(typeof(MyApiController).Assembly); ;
                 },
                 a =>
                 {
@@ -66,7 +67,7 @@ namespace WebApplication2
                     {
                         manager.FeatureProviders.Clear();
                         manager.FeatureProviders.Add(new TypedControllerFeatureProvider<MyApiController>());
-                    });
+                    }).AddApplicationPart(typeof(MyApiController).Assembly); ;
                 },
                 a =>
                 {
